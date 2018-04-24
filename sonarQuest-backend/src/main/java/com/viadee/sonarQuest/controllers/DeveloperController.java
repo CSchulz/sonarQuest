@@ -9,9 +9,14 @@ import com.viadee.sonarQuest.entities.World;
 import com.viadee.sonarQuest.repositories.DeveloperRepository;
 import com.viadee.sonarQuest.repositories.WorldRepository;
 import com.viadee.sonarQuest.services.DeveloperService;
+import com.viadee.sonarQuest.services.StorageService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +37,11 @@ public class DeveloperController {
     private WorldRepository worldRepository;
     
     private DeveloperService developerService;
+    
+    @Autowired
+	StorageService storageService;
+    
+    List<String> images = new ArrayList<String>();
 
     @Autowired
     public DeveloperController(DeveloperRepository developerRepository, DeveloperService developerService, WorldRepository worldRepository) {
@@ -146,4 +156,17 @@ public class DeveloperController {
         
     }
 
+    @CrossOrigin
+    @PostMapping("/{id}/avatar")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void postImage(@RequestParam("image") MultipartFile image) {
+    	System.out.println(image);
+    	String message = "";
+    	
+    	storageService.store(image);
+    	images.add(image.getOriginalFilename());
+
+		message = "You successfully uploaded " + image.getOriginalFilename() + "!";
+		System.out.println(message);
+    }
 }
